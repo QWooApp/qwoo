@@ -22,6 +22,6 @@ class User(AbstractUser):
     class Meta:
         ordering = ('-date_joined',)
         indexes: List[models.Index] = [
-            models.Index(fields=('active',)),
-            models.Index(fields=('active', 'username')),
+            models.Index(fields=('is_active',)),
+            models.Index(fields=('is_active', 'username')),
         ]
