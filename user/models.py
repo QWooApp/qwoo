@@ -18,6 +18,8 @@ class User(AbstractUser):
 
     objects = UserManager()
 
+    bio = models.CharField(default='')
+
     # Optional field for providing image avatars
     avatar = CloudinaryField(null=True, blank=True)
 
