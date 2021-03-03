@@ -25,7 +25,7 @@ class User(AbstractUser):
 
     objects = UserManager()
 
-    bio = models.CharField(default='')
+    bio = models.CharField(default='', max_length=250)
     privacy = models.BooleanField(default=False, choices=PRIVACY_CHOICES)
 
     # Optional field for providing image avatars
