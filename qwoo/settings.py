@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import cloudinary
 from decouple import config
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,6 +21,7 @@ DEFAULT_APPS = [
 ]
 
 THIRD_PARTY_APPS = [
+    'cloudinary',
     'rest_framework',
 ]
 
@@ -102,3 +104,9 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ]
 }
+
+cloudinary.config(
+    api_key=config('CLOUDINARY_KEY'),
+    cloud_name=config('CLOUDINARY_NAME'),
+    api_secret=config('CLOUDINARY_SECRET'),
+)
