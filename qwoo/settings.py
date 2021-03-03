@@ -21,8 +21,10 @@ DEFAULT_APPS = [
 ]
 
 THIRD_PARTY_APPS = [
+    'taggit',
     'cloudinary',
     'rest_framework',
+    'taggit_serializer',
 ]
 
 LOCAL_APPS = [
@@ -97,6 +99,8 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+# Third party config
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.BasicAuthentication',
@@ -110,3 +114,5 @@ cloudinary.config(
     cloud_name=config('CLOUDINARY_NAME'),
     api_secret=config('CLOUDINARY_SECRET'),
 )
+
+TAGGIT_CASE_INSENSITIVE = True
