@@ -16,9 +16,17 @@ class User(AbstractUser):
 
     """ Django's contrib.auth model mostly suffices for project. """
 
+    PUBLIC = False
+    PRIVATE = True
+    PRIVACY_CHOICES = (
+        (PUBLIC, 'public'),
+        (PRIVATE, 'private'),
+    )
+
     objects = UserManager()
 
     bio = models.CharField(default='')
+    privacy = models.BooleanField(default=False, choices=PRIVACY_CHOICES)
 
     # Optional field for providing image avatars
     avatar = CloudinaryField(null=True, blank=True)
