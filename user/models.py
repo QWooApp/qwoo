@@ -3,6 +3,8 @@ from typing import List
 from django.db import models
 from django.contrib.auth.models import AbstractUser, UserManager as BaseUserManager
 
+from cloudinary.models import CloudinaryField
+
 
 class UserManager(BaseUserManager):
     def active(self) -> models.QuerySet:
@@ -15,6 +17,9 @@ class User(AbstractUser):
     """ Django's contrib.auth model mostly suffices for project. """
 
     objects = UserManager()
+
+    # Optional field for providing image avatars
+    avatar = CloudinaryField(null=True, blank=True)
 
     # Optional field for providing OTP based auth in future
     phone_number = models.CharField(max_length=11, null=True, blank=True)
