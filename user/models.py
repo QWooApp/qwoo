@@ -34,6 +34,17 @@ class User(AbstractUser):
     # Optional field for providing OTP based auth in future
     phone_number = models.CharField(max_length=11, null=True, blank=True)
 
+    def set_full_name(self, full_name: str) -> None:
+        if not full_name:
+            return
+
+        full_name = full_name.split()
+        self.first_name = full_name[0]
+
+        # Has more than one space.
+        if len(full_name) > 1:
+            self.last_name = ' '.join(full_name[1:])
+
     class Meta:
         ordering = ('-date_joined',)
         indexes: List[models.Index] = [
