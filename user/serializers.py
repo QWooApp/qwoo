@@ -9,8 +9,36 @@ class UserListSerializer(serializers.ModelSerializer):
         fields = ('avatar', 'username', 'first_name')
 
 
+class UserUniqueFieldSerializer(serializers.Serializer):
+    def update(self, instance, validated_data):
+        pass
+
+    def create(self, validated_data):
+        pass
+
+    value = serializers.CharField(write_only=True)
+    available = serializers.CharField(read_only=True)
+    field = serializers.CharField(write_only=True, required=False, default='username')
+
+    def validate(self, attrs):
+        field = attrs.get('field')
+
+        if field not in ('username', 'email'):
+            raise serializers.ValidationError('Invalid field provided.', code='invalid')
+
+        q_filter = {f'{field}__iexact': attrs.get('value')}
+
+        if User.objects.values('id').filter(**q_filter).exists():
+            attrs['available'] = False
+        else:
+            attrs['available'] = True
+
+        return attrs
+
+
 class UserCreateSerializer(serializers.ModelSerializer):
 
+    avatar = serializers.ImageField(allow_null=True)
     bio = serializers.CharField(
         required=False,
         max_length=250,
@@ -34,5 +62,6 @@ class UserCreateSerializer(serializers.ModelSerializer):
             'username',
             'password',
             'privacy',
+            'avatar',
             'bio',
         )
