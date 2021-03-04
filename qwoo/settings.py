@@ -103,6 +103,12 @@ STATIC_URL = '/static/'
 
 STATICFILES_DIRS = [BASE_DIR / 'staticfiles']
 
+PASSWORD_HASHERS = [
+    'django.contrib.auth.hashers.Argon2PasswordHasher',
+    'django.contrib.auth.hashers.PBKDF2PasswordHasher',
+    'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
+]
+
 # Third party config
 
 REST_FRAMEWORK = {
