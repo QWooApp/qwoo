@@ -1,9 +1,54 @@
+from django.conf import settings
+
+from rest_framework import status
+from google.oauth2 import id_token
 from rest_framework.views import APIView
+from google.auth.transport import requests
 from rest_framework.request import Request
 from rest_framework.response import Response
 
+from user.models import User
+
 
 class GoogleUserRegisterAPIView(APIView):
+    """ Creates user via Google's OAuth 2.0 """
+
     @staticmethod
     def post(request: Request) -> Response:
-        raise NotImplementedError()
+        token = request.POST.get('token')
+        if not token:
+            return Response(
+                {'error': 'Token not provided.'}, status=status.HTTP_400_BAD_REQUEST
+            )
+        try:
+            idinfo = id_token.verify_oauth2_token(
+                token, requests.Request(), settings.GOOGLE_OAUTH2_KEY
+            )
+            if idinfo['iss'] not in (
+                'accounts.google.com',
+                'https://accounts.google.com',
+            ):
+                raise Exception('Wrong issuer.')
+            email = idinfo.pop('email')
+            first_name, last_name = idinfo.pop('given_name'), idinfo.pop(
+                'family_name', ''
+            )
+            username = f'{first_name}-{User.objects.values("id").count()}'
+            created = False
+            try:
+                user = User.objects.get(email__iexact=email)
+            except User.DoesNotExist:
+                user, created = User.objects.get_or_create(
+                    email=email,
+                    is_active=True,
+                    last_name=last_name,
+                    first_name=first_name,
+                )
+            return Response(
+                {'name': user.get_full_name(), 'token': user.auth_token.key},
+                status=(status.HTTP_201_CREATED if created else status.HTTP_200_OK),
+            )
+        except ValueError:
+            return Response(
+                {'error': 'Invalid token.'}, status=status.HTTP_400_BAD_REQUEST
+            )
