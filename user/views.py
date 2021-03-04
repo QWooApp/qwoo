@@ -6,6 +6,7 @@ from rest_framework.views import APIView
 from google.auth.transport import requests
 from rest_framework.request import Request
 from rest_framework.response import Response
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from user.models import User
 
@@ -33,7 +34,7 @@ class GoogleUserRegisterAPIView(APIView):
             first_name, last_name = idinfo.pop('given_name'), idinfo.pop(
                 'family_name', ''
             )
-            username = f'{first_name}-{User.objects.values("id").count()}'
+            username = f'{first_name}-{User.objects.values("id").count()}'.lower()
             created = False
             try:
                 user = User.objects.get(email__iexact=email)
@@ -41,11 +42,15 @@ class GoogleUserRegisterAPIView(APIView):
                 user, created = User.objects.get_or_create(
                     email=email,
                     is_active=True,
+                    username=username,
                     last_name=last_name,
                     first_name=first_name,
                 )
             return Response(
-                {'name': user.get_full_name(), 'token': user.auth_token.key},
+                {
+                    'username': user.username,
+                    'token': str(RefreshToken.for_user(user).access_token),
+                },
                 status=(status.HTTP_201_CREATED if created else status.HTTP_200_OK),
             )
         except ValueError:
