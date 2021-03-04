@@ -23,6 +23,7 @@ DEFAULT_APPS = [
 THIRD_PARTY_APPS = [
     'taggit',
     'cloudinary',
+    'corsheaders',
     'rest_framework',
     'taggit_serializer',
 ]
@@ -36,6 +37,7 @@ INSTALLED_APPS = DEFAULT_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -117,4 +119,13 @@ cloudinary.config(
     api_secret=config('CLOUDINARY_SECRET'),
 )
 
+GOOGLE_OAUTH2_KEY = config('GOOGLE_OAUTH2_KEY')
+
 TAGGIT_CASE_INSENSITIVE = True
+
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+]

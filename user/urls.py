@@ -6,6 +6,8 @@ from rest_framework_simplejwt.views import (
     TokenObtainPairView,
 )
 
+from user.views import GoogleUserRegisterAPIView
+
 app_name = 'user'
 
 urlpatterns = [
@@ -13,4 +15,6 @@ urlpatterns = [
     path('token/', TokenObtainPairView.as_view(), name='token'),
     path('token/verify/', TokenVerifyView.as_view(), name='verify'),
     path('token/refresh/', TokenRefreshView.as_view(), name='refresh'),
+    # Register views
+    path('google/', GoogleUserRegisterAPIView.as_view(), name='google'),
 ]
