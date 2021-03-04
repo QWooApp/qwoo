@@ -28,6 +28,9 @@ class User(AbstractUser):
     bio = models.CharField(default='', max_length=250)
     privacy = models.BooleanField(default=False, choices=PRIVACY_CHOICES)
 
+    # Auto populated field for security purposes
+    secret_key = models.CharField(max_length=32, blank=True)
+
     # Optional field for providing image avatars
     avatar = CloudinaryField(null=True, blank=True)
 
