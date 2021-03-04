@@ -10,12 +10,36 @@ from rest_framework.generics import CreateAPIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from user.models import User
-from user.serializers import UserCreateSerializer
+from user.serializers import UserCreateSerializer, UserUniqueFieldSerializer
 
 
 class UserCreateAPIView(CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserCreateSerializer
+
+
+class UserUniqueFieldAvailableAPIView(APIView):
+
+    serializer_class = UserUniqueFieldSerializer
+
+    def get_serializer_context(self):
+        return {
+            'view': self,
+            'request': self.request,
+            'format': self.format_kwarg,
+        }
+
+    def get_serializer(self, *args, **kwargs):
+        kwargs['context'] = self.get_serializer_context()
+        return self.serializer_class(*args, **kwargs)
+
+    def post(self, request: Request) -> Response:
+
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        available = serializer.validated_data['available']
+
+        return Response({'available': available})
 
 
 class GoogleUserRegisterAPIView(APIView):

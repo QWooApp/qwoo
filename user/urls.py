@@ -6,7 +6,11 @@ from rest_framework_simplejwt.views import (
     TokenObtainPairView,
 )
 
-from user.views import UserCreateAPIView, GoogleUserRegisterAPIView
+from user.views import (
+    UserCreateAPIView,
+    GoogleUserRegisterAPIView,
+    UserUniqueFieldAvailableAPIView,
+)
 
 app_name = 'user'
 
@@ -18,4 +22,9 @@ urlpatterns = [
     # Register views
     path('create/', UserCreateAPIView.as_view(), name='create'),
     path('google/', GoogleUserRegisterAPIView.as_view(), name='google'),
+    path(
+        'field-available/',
+        UserUniqueFieldAvailableAPIView.as_view(),
+        name='field-available',
+    ),
 ]
