@@ -39,6 +39,9 @@ class UserUniqueFieldSerializer(serializers.Serializer):
 class UserCreateSerializer(serializers.ModelSerializer):
 
     avatar = serializers.ImageField(allow_null=True)
+    last_name = serializers.CharField(read_only=True)
+    first_name = serializers.CharField(read_only=True)
+    name = serializers.CharField(write_only=True, required=True)
     bio = serializers.CharField(
         required=False,
         max_length=250,
@@ -51,17 +54,24 @@ class UserCreateSerializer(serializers.ModelSerializer):
     )
 
     def create(self, validated_data):
-        return User.objects.create_user(**validated_data)
+        name = validated_data.pop('name')
+        password = validated_data.pop('password')
+        user = User(**validated_data)
+        user.set_full_name(name)
+        user.set_password(password)
+        user.save()
+        return user
 
     class Meta:
         model = User
         fields = (
-            'first_name',
-            'last_name',
+            'name',
             'email',
             'username',
             'password',
             'privacy',
             'avatar',
             'bio',
+            'first_name',
+            'last_name',
         )
