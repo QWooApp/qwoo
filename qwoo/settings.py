@@ -89,6 +89,17 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+CACHES = {
+    'default': {
+        'LOCATION': 'redis://127.0.0.1:6379/1',
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'OPTIONS': {
+            'PASSWORD': config('REDIS_PASSWORD'),
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        },
+    },
+}
+
 LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'Asia/Kolkata'
