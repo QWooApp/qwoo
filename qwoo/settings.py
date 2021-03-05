@@ -24,6 +24,7 @@ THIRD_PARTY_APPS = [
     'taggit',
     'cloudinary',
     'corsheaders',
+    'debug_toolbar',
     'rest_framework',
     'taggit_serializer',
 ]
@@ -39,6 +40,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -92,7 +94,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 CACHES = {
     'default': {
-        'LOCATION': 'redis://127.0.0.1:6379/1',
+        'LOCATION': 'redis://127.0.0.1:6379/0',
         'BACKEND': 'django_redis.cache.RedisCache',
         'OPTIONS': {
             'PASSWORD': config('REDIS_PASSWORD'),
@@ -145,4 +147,8 @@ CORS_ALLOWED_ORIGINS = [
     'http://127.0.0.1:8000',
     'http://localhost:3000',
     'http://127.0.0.1:3000',
+]
+
+INTERNAL_IPS = [
+    '127.0.0.1',
 ]
