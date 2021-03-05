@@ -22,6 +22,7 @@ class RecentPublicPostListAPIView(ListAPIView):
         if qs:
             return qs
         else:
-            qs = Post.objects.filter(user__privacy=User.PUBLIC)[:20]
+            q_filter = {'user__privacy': User.PUBLIC}
+            qs = Post.objects.filter(**q_filter).select_related('user')[:20]
             cache.set('recent_public_posts', qs)
             return qs
