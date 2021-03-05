@@ -31,6 +31,10 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
+      env:
+        CLOUDINARY_KEY: ${{ secrets.CLOUDINARY_KEY }}
+        CLOUDINARY_NAME: ${{ secrets.CLOUDINARY_NAME }}
+        CLOUDINARY_SECRET: ${{ secrets.CLOUDINARY_SECRET }}
     - name: Install Dependencies
       run: |
         python -m pip install --upgrade pip
