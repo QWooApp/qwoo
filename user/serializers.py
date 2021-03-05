@@ -4,9 +4,12 @@ from user.models import User
 
 
 class UserListSerializer(serializers.ModelSerializer):
+
+    name = serializers.CharField(source='get_full_name')
+
     class Meta:
         model = User
-        fields = ('avatar', 'username', 'first_name')
+        fields = ('avatar', 'username', 'name')
 
 
 class UserUniqueFieldSerializer(serializers.Serializer):
