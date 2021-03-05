@@ -6,11 +6,11 @@ fake = Faker()
 
 
 def fake_user(privacy: bool = User.PUBLIC) -> User:
-    user = User(username=fake.user_name(), email=fake.email(), privacy=privacy)
-    name = fake.name()
-    while len(name.split()) == 3:
-        name = fake.name()
-    user.set_full_name(name)
-    user.set_password('abcd')
-    user.save()
-    return user
+    return User.objects.create_user(
+        password='abcd',
+        privacy=privacy,
+        email=fake.email(),
+        username=fake.user_name(),
+        last_name=fake.last_name(),
+        first_name=fake.first_name(),
+    )
