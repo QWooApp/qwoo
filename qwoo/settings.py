@@ -146,13 +146,20 @@ REST_FRAMEWORK = {
     ]
 }
 
-cloudinary.config(
-    api_key=config('CLOUDINARY_KEY'),
-    cloud_name=config('CLOUDINARY_NAME'),
-    api_secret=config('CLOUDINARY_SECRET'),
-)
-
-GOOGLE_OAUTH2_KEY = config('GOOGLE_OAUTH2_KEY')
+if IS_CI:
+    GOOGLE_OAUTH2_KEY = os.environ['GOOGLE_OAUTH2_KEY']
+    cloudinary.config(
+        api_key=os.environ['CLOUDINARY_KEY'],
+        cloud_name=os.environ['CLOUDINARY_NAME'],
+        api_secret=os.environ['CLOUDINARY_SECRET'],
+    )
+else:
+    GOOGLE_OAUTH2_KEY = config('GOOGLE_OAUTH2_KEY')
+    cloudinary.config(
+        api_key=config('CLOUDINARY_KEY'),
+        cloud_name=config('CLOUDINARY_NAME'),
+        api_secret=config('CLOUDINARY_SECRET'),
+    )
 
 TAGGIT_CASE_INSENSITIVE = True
 
