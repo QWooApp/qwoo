@@ -1,13 +1,20 @@
+import os
 from pathlib import Path
+
+from django.core.management.utils import get_random_secret_key
 
 import cloudinary
 from decouple import config
 
+IS_CI = os.environ.get('CI', False)
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = config('SECRET_KEY')
-
-DEBUG = config('DEBUG', cast=bool)
+if IS_CI:
+    DEBUG = True
+    SECRET_KEY = get_random_secret_key()
+else:
+    SECRET_KEY = config('SECRET_KEY')
+    DEBUG = config('DEBUG', cast=bool)
 
 ALLOWED_HOSTS = []
 
@@ -92,14 +99,21 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+if IS_CI:
+    CACHE_DEFAULT_OPTIONS = {
+        'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+    }
+else:
+    CACHE_DEFAULT_OPTIONS = {
+        'PASSWORD': config('REDIS_PASSWORD'),
+        'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+    }
+
 CACHES = {
     'default': {
+        'OPTIONS': CACHE_DEFAULT_OPTIONS,
         'LOCATION': 'redis://127.0.0.1:6379/0',
         'BACKEND': 'django_redis.cache.RedisCache',
-        'OPTIONS': {
-            'PASSWORD': config('REDIS_PASSWORD'),
-            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-        },
     },
 }
 
