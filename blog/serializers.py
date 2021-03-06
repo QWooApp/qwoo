@@ -8,6 +8,7 @@ from user.serializers import UserListSerializer
 class PostListSerializer(serializers.ModelSerializer):
 
     user = UserListSerializer()
+    timestamp = serializers.DateTimeField(format='%b %d, %Y')
 
     class Meta:
         model = Post
@@ -16,6 +17,7 @@ class PostListSerializer(serializers.ModelSerializer):
 
 class PostCreateSerializer(serializers.ModelSerializer):
 
+    user = UserListSerializer(read_only=True)
     body = serializers.CharField(
         required=False,
         max_length=250,
@@ -30,7 +32,7 @@ class PostCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Post
-        exclude = ('user', 'is_reply', 'reply_to')
+        exclude = ('is_reply', 'reply_to')
 
 
 class PostDetailSerializer(TaggitSerializer, serializers.ModelSerializer):
