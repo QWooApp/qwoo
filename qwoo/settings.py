@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from datetime import timedelta
 
 from django.core.management.utils import get_random_secret_key
 
@@ -175,3 +176,7 @@ CORS_ALLOWED_ORIGINS = [
 INTERNAL_IPS = [
     '127.0.0.1',
 ]
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=12),
+}
