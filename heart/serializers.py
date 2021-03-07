@@ -5,8 +5,14 @@ from heart.models import Heart
 
 class HeartSerializer(serializers.ModelSerializer):
 
-    post = serializers.UUIDField()
+    post_id = serializers.UUIDField(write_only=True)
+
+    def create(self, validated_data) -> Heart:
+        heart = Heart(**validated_data)
+        heart.user = self.context['request'].user
+        heart.save()
+        return heart
 
     class Meta:
         model = Heart
-        fields = ('post', 'timestamp')
+        exclude = ('user', 'post')
