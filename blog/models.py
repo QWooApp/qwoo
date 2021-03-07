@@ -1,4 +1,4 @@
-from typing import Set, List
+from typing import Set
 
 import re
 import uuid
@@ -18,15 +18,32 @@ class UUIDTaggedItem(GenericUUIDTaggedItemBase, TaggedItemBase):
         verbose_name_plural = _("Tags")
 
 
-class AbstractPost(models.Model):
+class Post(models.Model):
 
     hashtags = TaggableManager(through=UUIDTaggedItem)
     timestamp = models.DateTimeField(auto_now_add=True)
     body = models.CharField(max_length=300, editable=False)
+    heart_count = models.PositiveBigIntegerField(default=0)
+    reply_count = models.PositiveBigIntegerField(default=0)
+    repost_count = models.PositiveBigIntegerField(default=0)
+    repost_of = models.ForeignKey(
+        'blog.Post', on_delete=models.SET_NULL, null=True, related_name='reposts'
+    )
+    reply_to = models.ForeignKey(
+        'blog.Post', on_delete=models.SET_NULL, null=True, related_name='replies'
+    )
     id = models.UUIDField(default=uuid.uuid4, primary_key=True, editable=False)
     user = models.ForeignKey(
         'user.User', on_delete=models.CASCADE, related_name='posts'
     )
+
+    @property
+    def is_reply(self) -> bool:
+        return not (self.reply_to_id is None)
+
+    @property
+    def is_repost(self) -> bool:
+        return not (self.repost_of_id is None)
 
     def find_hashtags(self) -> Set[str]:
         return set(HASHTAG_PATTERN.findall(self.body))
@@ -39,42 +56,4 @@ class AbstractPost(models.Model):
         return f'# {self.id}'
 
     class Meta:
-        abstract = True
         ordering = ('-timestamp',)
-
-
-class Post(AbstractPost):
-
-    is_reply = models.BooleanField(default=False)
-    reply_to = models.ForeignKey(
-        'blog.Post', on_delete=models.SET_NULL, null=True, related_name='replies'
-    )
-
-    class Meta:
-        ordering = ('-timestamp',)
-        indexes: List[models.Index] = [
-            models.Index(fields=('is_reply', 'user')),
-        ]
-
-
-class Repost(AbstractPost):
-
-    repost_timestamp = models.DateTimeField(auto_now_add=True)
-    post = models.ForeignKey(
-        'blog.Post', on_delete=models.CASCADE, related_name='reposts'
-    )
-    user = models.ForeignKey(
-        'user.User', on_delete=models.CASCADE, related_name='reposts'
-    )
-
-    class Meta:
-        ordering = ('-timestamp',)
-
-
-def find_hashtags(body: str) -> Set[str]:
-    return set(
-        [
-            HASHTAG_PATTERN.sub('', j)
-            for j in set([i for i in body.split() if i.startswith('#')])
-        ]
-    )
