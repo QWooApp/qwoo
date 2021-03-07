@@ -22,10 +22,15 @@ class PostListSerializer(serializers.ModelSerializer):
 
     user = UserListSerializer()
     repost_of = SubPostListSerializer()
+    is_hearted = serializers.SerializerMethodField()
     reply_count = serializers.IntegerField(read_only=True)
     heart_count = serializers.IntegerField(read_only=True)
     repost_count = serializers.IntegerField(read_only=True)
     timestamp = serializers.DateTimeField(format='%b %d, %Y', read_only=True)
+
+    def get_is_hearted(self, obj: Post):
+        user = self.context['request'].user
+        return user.hearts.filter(post_id=obj.id).exists()
 
     class Meta:
         model = Post
