@@ -16,6 +16,6 @@ class RecentPublicPostListAPIView(ListAPIView):
     serializer_class = PostListSerializer
 
     def get_queryset(self):
-        return Post.objects.filter(user__privacy=User.PUBLIC).select_related('user')[
-            :20
-        ]
+        return Post.objects.filter(user__privacy=User.PUBLIC).select_related(
+            'user', 'repost_of', 'repost_of__user'
+        )[:20]
