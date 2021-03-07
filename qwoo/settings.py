@@ -40,6 +40,7 @@ THIRD_PARTY_APPS = [
 LOCAL_APPS = [
     'user.apps.UserConfig',
     'blog.apps.BlogConfig',
+    'heart.apps.HeartConfig',
 ]
 
 INSTALLED_APPS = DEFAULT_APPS + THIRD_PARTY_APPS + LOCAL_APPS
