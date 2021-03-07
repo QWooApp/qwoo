@@ -26,6 +26,8 @@ class Post(models.Model):
     heart_count = models.PositiveBigIntegerField(default=0)
     reply_count = models.PositiveBigIntegerField(default=0)
     repost_count = models.PositiveBigIntegerField(default=0)
+    is_reply = models.BooleanField(default=False, editable=True)
+    is_repost = models.BooleanField(default=False, editable=True)
     repost_of = models.ForeignKey(
         'blog.Post', on_delete=models.SET_NULL, null=True, related_name='reposts'
     )
@@ -37,19 +39,15 @@ class Post(models.Model):
         'user.User', on_delete=models.CASCADE, related_name='posts'
     )
 
-    @property
-    def is_reply(self) -> bool:
-        return not (self.reply_to_id is None)
-
-    @property
-    def is_repost(self) -> bool:
-        return not (self.repost_of_id is None)
-
     def find_hashtags(self) -> Set[str]:
         return set(HASHTAG_PATTERN.findall(self.body))
 
     def save(self, *args, **kwargs):
         self.hashtags.add(*self.find_hashtags())
+        if self.reply_to:
+            self.is_reply = True
+        if self.repost_of:
+            self.is_repost = True
         super().save(*args, **kwargs)
 
     def __str__(self) -> str:
@@ -57,3 +55,4 @@ class Post(models.Model):
 
     class Meta:
         ordering = ('-timestamp',)
+        unique_together = (('user', 'repost_of'),)

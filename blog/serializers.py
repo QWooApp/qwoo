@@ -5,44 +5,53 @@ from blog.models import Post
 from user.serializers import UserListSerializer
 
 
-class SubPostListSerializer(serializers.ModelSerializer):
+class GetIsHeartedSerializer(serializers.ModelSerializer):
 
-    user = UserListSerializer()
-    reply_count = serializers.IntegerField(read_only=True)
-    heart_count = serializers.IntegerField(read_only=True)
-    repost_count = serializers.IntegerField(read_only=True)
-    timestamp = serializers.DateTimeField(format='%b %d, %Y', read_only=True)
-
-    class Meta:
-        model = Post
-        fields = '__all__'
-
-
-class PostListSerializer(serializers.ModelSerializer):
-
-    user = UserListSerializer()
-    repost_of = SubPostListSerializer()
     is_hearted = serializers.SerializerMethodField()
-    reply_count = serializers.IntegerField(read_only=True)
-    heart_count = serializers.IntegerField(read_only=True)
-    repost_count = serializers.IntegerField(read_only=True)
-    timestamp = serializers.DateTimeField(format='%b %d, %Y', read_only=True)
 
     def get_is_hearted(self, obj: Post):
         user = self.context['request'].user
-        return user.hearts.filter(post_id=obj.id).exists()
+        if user.is_authenticated:
+            return obj.id in self.context['heart__post_ids']
+        else:
+            return False
+
+    class Meta:
+        model = Post
+
+
+class BasePostSerializer(serializers.ModelSerializer):
+
+    user = UserListSerializer(read_only=True)
+    reply_count = serializers.IntegerField(read_only=True)
+    heart_count = serializers.IntegerField(read_only=True)
+    repost_count = serializers.IntegerField(read_only=True)
+    timestamp = serializers.DateTimeField(format='%b %d, %Y', read_only=True)
+
+    class Meta:
+        model = Post
+
+
+class SubPostRelatedSerializer(BasePostSerializer):
+    class Meta:
+        model = Post
+        exclude = ('reply_to', 'repost_of')
+
+
+class PostListSerializer(GetIsHeartedSerializer, BasePostSerializer):
+
+    reply_to = SubPostRelatedSerializer()
+    repost_of = SubPostRelatedSerializer()
 
     class Meta:
         model = Post
         fields = '__all__'
 
 
-class PostCreateSerializer(serializers.ModelSerializer):
+class PostCreateSerializer(BasePostSerializer):
 
-    user = UserListSerializer(read_only=True)
-
-    reply_to = serializers.UUIDField(read_only=True)
-    repost_of = SubPostListSerializer(read_only=True)
+    reply_to = SubPostRelatedSerializer(read_only=True)
+    repost_of = SubPostRelatedSerializer(read_only=True)
 
     reply_to_id = serializers.UUIDField(
         allow_null=True, write_only=True, required=False
@@ -51,11 +60,6 @@ class PostCreateSerializer(serializers.ModelSerializer):
         allow_null=True, write_only=True, required=False
     )
 
-    reply_count = serializers.IntegerField(read_only=True)
-    heart_count = serializers.IntegerField(read_only=True)
-    repost_count = serializers.IntegerField(read_only=True)
-
-    timestamp = serializers.DateTimeField(format='%b %d, %Y', read_only=True)
     body = serializers.CharField(
         required=False,
         max_length=250,
@@ -73,14 +77,11 @@ class PostCreateSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class PostDetailSerializer(TaggitSerializer, serializers.ModelSerializer):
+class PostDetailSerializer(TaggitSerializer, BasePostSerializer):
 
-    user = UserListSerializer()
+    reply_of = SubPostRelatedSerializer()
+    repost_of = SubPostRelatedSerializer()
     hashtags = TagListSerializerField(read_only=True)
-    reply_count = serializers.IntegerField(read_only=True)
-    heart_count = serializers.IntegerField(read_only=True)
-    repost_count = serializers.IntegerField(read_only=True)
-    timestamp = serializers.DateTimeField(format='%b %d, %Y', read_only=True)
 
     class Meta:
         model = Post
