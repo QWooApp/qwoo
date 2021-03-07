@@ -5,10 +5,27 @@ from blog.models import Post
 from user.serializers import UserListSerializer
 
 
+class SubPostListSerializer(serializers.ModelSerializer):
+
+    user = UserListSerializer()
+    reply_count = serializers.IntegerField(read_only=True)
+    heart_count = serializers.IntegerField(read_only=True)
+    repost_count = serializers.IntegerField(read_only=True)
+    timestamp = serializers.DateTimeField(format='%b %d, %Y', read_only=True)
+
+    class Meta:
+        model = Post
+        fields = '__all__'
+
+
 class PostListSerializer(serializers.ModelSerializer):
 
     user = UserListSerializer()
-    timestamp = serializers.DateTimeField(format='%b %d, %Y')
+    repost_of = SubPostListSerializer()
+    reply_count = serializers.IntegerField(read_only=True)
+    heart_count = serializers.IntegerField(read_only=True)
+    repost_count = serializers.IntegerField(read_only=True)
+    timestamp = serializers.DateTimeField(format='%b %d, %Y', read_only=True)
 
     class Meta:
         model = Post
@@ -18,6 +35,22 @@ class PostListSerializer(serializers.ModelSerializer):
 class PostCreateSerializer(serializers.ModelSerializer):
 
     user = UserListSerializer(read_only=True)
+
+    reply_to = serializers.UUIDField(read_only=True)
+    repost_of = SubPostListSerializer(read_only=True)
+
+    reply_to_id = serializers.UUIDField(
+        allow_null=True, write_only=True, required=False
+    )
+    repost_of_id = serializers.UUIDField(
+        allow_null=True, write_only=True, required=False
+    )
+
+    reply_count = serializers.IntegerField(read_only=True)
+    heart_count = serializers.IntegerField(read_only=True)
+    repost_count = serializers.IntegerField(read_only=True)
+
+    timestamp = serializers.DateTimeField(format='%b %d, %Y', read_only=True)
     body = serializers.CharField(
         required=False,
         max_length=250,
@@ -32,13 +65,17 @@ class PostCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Post
-        exclude = ('is_reply', 'reply_to')
+        fields = '__all__'
 
 
 class PostDetailSerializer(TaggitSerializer, serializers.ModelSerializer):
 
     user = UserListSerializer()
     hashtags = TagListSerializerField(read_only=True)
+    reply_count = serializers.IntegerField(read_only=True)
+    heart_count = serializers.IntegerField(read_only=True)
+    repost_count = serializers.IntegerField(read_only=True)
+    timestamp = serializers.DateTimeField(format='%b %d, %Y', read_only=True)
 
     class Meta:
         model = Post
