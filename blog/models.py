@@ -9,6 +9,8 @@ from django.utils.translation import ugettext_lazy as _
 from taggit.managers import TaggableManager
 from taggit.models import GenericUUIDTaggedItemBase, TaggedItemBase
 
+SPACE_PATTERN = re.compile(' +')
+NEWLINE_PATTERN = re.compile('\n+')
 HASHTAG_PATTERN = re.compile(r'#(\w+)')
 
 
@@ -42,8 +44,13 @@ class Post(models.Model):
     def find_hashtags(self) -> Set[str]:
         return set(HASHTAG_PATTERN.findall(self.body))
 
+    @property
+    def is_only_repost(self) -> bool:
+        return self.is_repost and len(self.body) == 0
+
     def save(self, *args, **kwargs):
         self.hashtags.add(*self.find_hashtags())
+        self.body = SPACE_PATTERN.sub(' ', NEWLINE_PATTERN.sub('\n', self.body))
         if self.reply_to:
             self.is_reply = True
         if self.repost_of:
