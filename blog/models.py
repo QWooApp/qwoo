@@ -24,6 +24,7 @@ class Post(models.Model):
 
     hashtags = TaggableManager(through=UUIDTaggedItem)
     timestamp = models.DateTimeField(auto_now_add=True)
+    is_only_repost = models.BooleanField(default=False)
     body = models.CharField(max_length=300, editable=False)
     heart_count = models.PositiveBigIntegerField(default=0)
     reply_count = models.PositiveBigIntegerField(default=0)
@@ -44,17 +45,19 @@ class Post(models.Model):
     def find_hashtags(self) -> Set[str]:
         return set(HASHTAG_PATTERN.findall(self.body))
 
-    @property
-    def is_only_repost(self) -> bool:
-        return self.is_repost and len(self.body) == 0
-
     def save(self, *args, **kwargs):
+
         self.hashtags.add(*self.find_hashtags())
+
         self.body = SPACE_PATTERN.sub(' ', NEWLINE_PATTERN.sub('\n', self.body))
+
+        self.is_only_repost = len(self.body) == 0
+
         if self.reply_to:
             self.is_reply = True
         if self.repost_of:
             self.is_repost = True
+
         super().save(*args, **kwargs)
 
     def __str__(self) -> str:
@@ -62,4 +65,3 @@ class Post(models.Model):
 
     class Meta:
         ordering = ('-timestamp',)
-        unique_together = (('user', 'repost_of'),)

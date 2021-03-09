@@ -11,3 +11,6 @@ class Heart(models.Model):
     user = models.ForeignKey(
         'user.User', on_delete=models.CASCADE, related_name='hearts'
     )
+
+    class Meta:
+        unique_together = (('user', 'post'),)

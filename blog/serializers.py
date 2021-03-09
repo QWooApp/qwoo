@@ -30,9 +30,10 @@ class BasePostSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Post
+        exclude = ('reply_to', 'repost_of')
 
 
-class SubPostRelatedSerializer(BasePostSerializer):
+class SubPostRelatedSerializer(GetIsHeartedSerializer, BasePostSerializer):
     class Meta:
         model = Post
         exclude = ('reply_to', 'repost_of')
@@ -50,8 +51,8 @@ class PostListSerializer(GetIsHeartedSerializer, BasePostSerializer):
 
 class PostCreateSerializer(BasePostSerializer):
 
-    reply_to = SubPostRelatedSerializer(read_only=True)
-    repost_of = SubPostRelatedSerializer(read_only=True)
+    reply_to = BasePostSerializer(read_only=True)
+    repost_of = BasePostSerializer(read_only=True)
 
     reply_to_id = serializers.UUIDField(
         allow_null=True, write_only=True, required=False

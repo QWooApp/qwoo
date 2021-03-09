@@ -23,6 +23,9 @@ def increment_count_fields(
 # noinspection PyUnusedLocal
 @receiver(pre_delete, sender=Post)
 def decrement_count_fields(sender: Type[Post], instance: Post, **kwargs):
+
+    Post.objects.filter(repost_of=instance, is_only_repost=True).delete()
+
     if instance.reply_to:
         instance.reply_to.reply_count -= 1
         instance.reply_to.save()
