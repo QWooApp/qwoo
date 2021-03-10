@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from actstream.models import following
 
 from user.models import User
 
@@ -10,6 +11,33 @@ class UserListSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('avatar', 'username', 'name')
+
+
+class UserDetailSerializer(serializers.ModelSerializer):
+
+    avatar = serializers.URLField(source='avatar_url')
+    is_following = serializers.SerializerMethodField()
+    date_joined = serializers.DateTimeField(format='%B %Y')
+
+    def get_is_following(self, obj: User) -> bool:
+        user = self.context['request'].user
+        if not user.is_authenticated:
+            return False
+        else:
+            return obj in following(user)
+
+    class Meta:
+        model = User
+        fields = (
+            'bio',
+            'avatar',
+            'username',
+            'last_name',
+            'first_name',
+            'date_joined',
+            'is_following',
+            'follow_requested',
+        )
 
 
 class UserUniqueFieldSerializer(serializers.Serializer):

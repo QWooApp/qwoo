@@ -16,17 +16,9 @@ class User(AbstractUser):
 
     """ Django's contrib.auth model mostly suffices for project. """
 
-    PUBLIC = False
-    PRIVATE = True
-    PRIVACY_CHOICES = (
-        (PUBLIC, 'public'),
-        (PRIVATE, 'private'),
-    )
-
     objects = UserManager()
 
     bio = models.CharField(default='', max_length=250)
-    privacy = models.BooleanField(default=False, choices=PRIVACY_CHOICES)
 
     # Auto populated field for security purposes
     secret_key = models.CharField(max_length=32, blank=True)
@@ -36,6 +28,13 @@ class User(AbstractUser):
 
     # Optional field for providing OTP based auth in future
     phone_number = models.CharField(max_length=11, null=True, blank=True)
+
+    @property
+    def avatar_url(self):
+        if not (self.avatar is None):
+            return self.avatar.build_url()
+        else:
+            return None
 
     def set_full_name(self, full_name: str) -> None:
         if not full_name:

@@ -8,6 +8,7 @@ from rest_framework_simplejwt.views import (
 
 from user.views import (
     UserCreateAPIView,
+    UserDetailAPIView,
     GoogleUserRegisterAPIView,
     UserUniqueFieldAvailableAPIView,
 )
@@ -27,4 +28,6 @@ urlpatterns = [
         UserUniqueFieldAvailableAPIView.as_view(),
         name='field-available',
     ),
+    # Retrieve views
+    path('detail/<slug:username>/', UserDetailAPIView.as_view(), name='detail'),
 ]
