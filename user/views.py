@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.shortcuts import get_object_or_404
 
 from rest_framework import status
 from google.oauth2 import id_token
@@ -7,14 +8,34 @@ from google.auth.transport import requests
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.generics import CreateAPIView, RetrieveAPIView
+from rest_framework.generics import ListAPIView, CreateAPIView, RetrieveAPIView
 
 from user.models import User
+from blog.serializers import PostListSerializer
 from user.serializers import (
     UserCreateSerializer,
     UserDetailSerializer,
     UserUniqueFieldSerializer,
 )
+
+
+class UserPostListAPIView(ListAPIView):
+    serializer_class = PostListSerializer
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+
+        user = self.request.user
+        if user.is_authenticated:
+            context['heart__post_ids'] = user.hearts.values_list('post_id', flat=True)
+        else:
+            context['heart__post_ids'] = []
+
+        return context
+
+    def get_queryset(self):
+        username = self.kwargs.pop('username')
+        return get_object_or_404(User, username__iexact=username).posts.all()
 
 
 class UserDetailAPIView(RetrieveAPIView):

@@ -36,7 +36,6 @@ class UserDetailSerializer(serializers.ModelSerializer):
             'first_name',
             'date_joined',
             'is_following',
-            'follow_requested',
         )
 
 
