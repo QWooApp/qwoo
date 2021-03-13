@@ -30,6 +30,7 @@ DEFAULT_APPS = [
 
 THIRD_PARTY_APPS = [
     'taggit',
+    'actstream',
     'cloudinary',
     'corsheaders',
     'debug_toolbar',
@@ -40,7 +41,9 @@ THIRD_PARTY_APPS = [
 LOCAL_APPS = [
     'user.apps.UserConfig',
     'blog.apps.BlogConfig',
+    'feed.apps.FeedConfig',
     'heart.apps.HeartConfig',
+    'notifications.apps.NotificationsConfig',
 ]
 
 INSTALLED_APPS = DEFAULT_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -56,6 +59,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+SITE_ID = 1
 
 ROOT_URLCONF = 'qwoo.urls'
 
@@ -130,6 +135,7 @@ USE_L10N = True
 USE_TZ = True
 
 STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'static'
 
 STATICFILES_DIRS = [BASE_DIR / 'staticfiles']
 

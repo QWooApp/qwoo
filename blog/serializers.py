@@ -25,24 +25,22 @@ class BasePostSerializer(serializers.ModelSerializer):
     user = UserListSerializer(read_only=True)
     reply_count = serializers.IntegerField(read_only=True)
     heart_count = serializers.IntegerField(read_only=True)
-    repost_count = serializers.IntegerField(read_only=True)
     timestamp = serializers.DateTimeField(format='%b %d, %Y', read_only=True)
 
     class Meta:
         model = Post
-        exclude = ('reply_to', 'repost_of')
+        exclude = ('reply_to',)
 
 
 class SubPostRelatedSerializer(GetIsHeartedSerializer, BasePostSerializer):
     class Meta:
         model = Post
-        exclude = ('reply_to', 'repost_of')
+        exclude = ('reply_to',)
 
 
 class PostListSerializer(GetIsHeartedSerializer, BasePostSerializer):
 
     reply_to = SubPostRelatedSerializer()
-    repost_of = SubPostRelatedSerializer()
 
     class Meta:
         model = Post
@@ -52,12 +50,8 @@ class PostListSerializer(GetIsHeartedSerializer, BasePostSerializer):
 class PostCreateSerializer(BasePostSerializer):
 
     reply_to = BasePostSerializer(read_only=True)
-    repost_of = BasePostSerializer(read_only=True)
 
     reply_to_id = serializers.UUIDField(
-        allow_null=True, write_only=True, required=False
-    )
-    repost_of_id = serializers.UUIDField(
         allow_null=True, write_only=True, required=False
     )
 
@@ -81,7 +75,6 @@ class PostCreateSerializer(BasePostSerializer):
 class PostDetailSerializer(TaggitSerializer, BasePostSerializer):
 
     reply_of = SubPostRelatedSerializer()
-    repost_of = SubPostRelatedSerializer()
     hashtags = TagListSerializerField(read_only=True)
 
     class Meta:

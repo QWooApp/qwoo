@@ -34,10 +34,6 @@ class RecentPublicPostListAPIView(ListAPIView):
         return context
 
     def get_queryset(self):
-        return Post.objects.all().select_related(
-            'user',
-            'reply_to',
-            'repost_of',
-            'reply_to__user',
-            'repost_of__user',
-        )[:20]
+        return Post.objects.all().select_related('user', 'reply_to', 'reply_to__user')[
+            :20
+        ]

@@ -24,16 +24,10 @@ class Post(models.Model):
 
     hashtags = TaggableManager(through=UUIDTaggedItem)
     timestamp = models.DateTimeField(auto_now_add=True)
-    is_only_repost = models.BooleanField(default=False)
     body = models.CharField(max_length=300, editable=False)
     heart_count = models.PositiveBigIntegerField(default=0)
     reply_count = models.PositiveBigIntegerField(default=0)
-    repost_count = models.PositiveBigIntegerField(default=0)
     is_reply = models.BooleanField(default=False, editable=True)
-    is_repost = models.BooleanField(default=False, editable=True)
-    repost_of = models.ForeignKey(
-        'blog.Post', on_delete=models.SET_NULL, null=True, related_name='reposts'
-    )
     reply_to = models.ForeignKey(
         'blog.Post', on_delete=models.SET_NULL, null=True, related_name='replies'
     )
@@ -51,12 +45,8 @@ class Post(models.Model):
 
         self.body = SPACE_PATTERN.sub(' ', NEWLINE_PATTERN.sub('\n', self.body))
 
-        self.is_only_repost = len(self.body) == 0
-
         if self.reply_to:
             self.is_reply = True
-        if self.repost_of:
-            self.is_repost = True
 
         super().save(*args, **kwargs)
 
