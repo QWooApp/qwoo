@@ -5,10 +5,9 @@ from user.models import User
 fake = Faker()
 
 
-def fake_user(privacy: bool = User.PUBLIC) -> User:
+def fake_user() -> User:
     return User.objects.create_user(
         password='abcd',
-        privacy=privacy,
         email=fake.email(),
         username=fake.user_name(),
         last_name=fake.last_name(),
